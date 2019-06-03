@@ -13,6 +13,45 @@ namespace WordModels.Grammars.Elements
                 Add(left, new HashSet<RuleSide> { right });
         }
 
-        public override string ToString() => $"{{{string.Join(", ", this.Select(rule => $"{rule.Key} -> {string.Join(" | ", rule.Value)}"))}}}";
+        public void Remove(RuleSide left, RuleSide right)
+        {
+            if (ContainsKey(left))
+            {
+                this[left].Remove(right);
+                if (this[left].Count() == 0)
+                    Remove(left);
+            }
+        }
+
+        public void Replace(RuleSide left, RuleSide right, RuleSide replacement)
+        {
+            if (ContainsKey(left) && this[left].Contains(right))
+            {
+                this[left].Remove(right);
+                this[left].Add(replacement);
+            }
+        }
+
+        public void CopyRightSideWithout(RuleSide left, RuleSide without)
+        {
+            if (ContainsKey(left))
+            {
+                var e = this[left].GetEnumerator();
+                while (e.MoveNext())
+                    if (e.Current.Contains(without))
+                        this[left].Add(e.Current.Except(without));
+            }
+        }
+
+        public bool Contains(RuleSide left, RuleSide right, bool single)
+        {
+            if (!ContainsKey(left))
+                return false;
+            return single ? this[left].Contains(right) : this[left].Any(rs => rs.Contains(right));
+        }
+
+        public IEnumerable<RuleSide> Contains(RuleSide right, bool single) => this.Where(r => Contains(r.Key, right, single)).Select(r => r.Key);
+
+        public override string ToString() => $"{{{string.Join(", ", this.Select(r => $"{r.Key} -> {string.Join(" | ", r.Value)}"))}}}";
     }
 }

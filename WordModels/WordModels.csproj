@@ -50,6 +50,8 @@
     <Compile Include="Automata\Elements\States.cs" />
     <Compile Include="Automata\Elements\Transitions.cs" />
     <Compile Include="Automata\NFA.cs" />
+    <Compile Include="Grammars\CFG.cs" />
+    <Compile Include="Grammars\CSG.cs" />
     <Compile Include="Grammars\Elements\Rules.cs" />
     <Compile Include="Grammars\Elements\RuleSide.cs" />
     <Compile Include="Program.cs" />

@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WordModels.Automata;
 using WordModels.Automata.Elements;
+using WordModels.Grammars;
+using WordModels.Grammars.Elements;
 
 namespace WordModels
 {
@@ -12,8 +11,10 @@ namespace WordModels
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("--- AUTOMATA ---");
             Alphabet sigma = new Alphabet { "a", "b" };
+
+            /*
+            Console.WriteLine("--- AUTOMATA ---");
             State q0 = new State("q0");
             State q1 = new State("q1", true);
             State q2 = new State("q2");
@@ -31,26 +32,26 @@ namespace WordModels
             NFA d = new NFA(states, sigma, q0, transitions);
             Console.WriteLine(d);
             Console.WriteLine(d.IsDeterministic());
-            //*
             DFA d1 = d.Determinize();
             Console.WriteLine(d1);
             Console.WriteLine(d1.IsDeterministic());
             //*/
-            /*
-            System.Console.WriteLine("--- GRAMMARS ---");
-            NonTerminalSymbols NTS = new NonTerminalSymbols { "S", "A" };
-            TerminalSymbols TS = new TerminalSymbols { "a", "b" };
+            //*
+            Console.WriteLine("--- GRAMMARS ---");
+            HashSet<string> NTS = new HashSet<string> { "S", "A" };
+            Alphabet TS = sigma;
             Rules rules = new Rules
             {
-                new Rule(new NonTerminalSymbols { "S" }, new Symbols { "a", "S" }),
-                new Rule(new NonTerminalSymbols { "S" }, new Symbols { "A" }),
-                new Rule(new NonTerminalSymbols { "A" }, new Symbols { "b", "A" }),
-                new Rule(new NonTerminalSymbols { "A" }, new Symbols { "b", "A", "a" }),
-                new Rule(new NonTerminalSymbols { "A" }, new Symbols( "" )),
+                { new RuleSide("S"), new RuleSide("a", "S") },
+                { new RuleSide("S"), new RuleSide("A") },
+                { new RuleSide("A"), new RuleSide("b", "A") },
+                { new RuleSide("A"), new RuleSide("b", "A", "a") },
+                { new RuleSide("A"), new RuleSide("") }
             };
             CFG g = new CFG(NTS, TS, "S", rules);
             Console.WriteLine(g);
-            CFG g1 = g.getCNF();
+            /*
+            CFG g1 = g.GetCNF();
             Console.WriteLine(g1);
             //*/
         }

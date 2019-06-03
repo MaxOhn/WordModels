@@ -16,15 +16,49 @@ namespace WordModels.Grammars
 
         public bool IsInCNF()
         {
-            // TODO
-            return false;
+            return rules.All(r =>
+            {
+                return r.Value.All(rs =>
+                {
+                    switch (rs.Count())
+                    {
+                        case 1: return TS.IsSupersetOf(rs.Symbols);
+                        case 2: return NTS.IsSupersetOf(rs.Symbols);
+                        default: return false;
+                    }
+                }) && (r.Key.Symbols[0].Equals(S) || r.Value.All(rs => !rs.Contains("")));
+            });
         }
 
         public CFG GetCNF()
         {
+            HashSet<string> nNTS = NTS;
+            Alphabet nTS = TS;
+            string nS = S;
+            Rules nRules = rules;
+
             // Phase 0
 
-            // TODO
+            var emptyableNTS = rules.Where(r => r.Value.Any(rs => rs.Contains(""))).Select(r => r.Key);
+            if (emptyableNTS.Count() > 0)
+            {
+                foreach (RuleSide rs in emptyableNTS)
+                    nRules[rs] = new HashSet<RuleSide>(nRules[rs].Where(side => !side.Contains("")));
+                Queue<RuleSide> queue = new Queue<RuleSide>(emptyableNTS);
+                while (queue.Count() > 0)
+                {
+                    RuleSide curr = queue.Dequeue();
+                    var impacted = nRules.Contains(curr, false);
+                    foreach (RuleSide rs in impacted)
+                    {
+                        queue.Enqueue(rs);
+                        nRules.CopyRightSideWithout(rs, curr);
+                    }
+                }
+                nS = S + "'";
+                nRules.Add(new RuleSide(nS), new RuleSide(S));
+                nRules.Add(new RuleSide(nS), new RuleSide(""));
+            }
 
             // Phase 1
 

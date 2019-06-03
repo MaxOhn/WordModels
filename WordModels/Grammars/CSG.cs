@@ -25,8 +25,8 @@ namespace WordModels.Grammars
                 throw new ArgumentException($"Left-hand side of all rules must contain NTS!");
         }
 
-        public bool IsContextFree() => rules.Keys.All(rs => rs.Symbols.Count() == 1);
+        public bool IsContextFree() => rules.Keys.All(rs => rs.Count() == 1);
 
-        public override string ToString() => $"({NTS}, {TS}, {S}, {rules})";
+        public override string ToString() => $"({{{string.Join(", ", NTS)}}}, {TS}, {S}, {rules})";
     }
 }
