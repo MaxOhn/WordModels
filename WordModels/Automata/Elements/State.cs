@@ -6,9 +6,7 @@ namespace WordModels.Automata.Elements
         public string Name { get; }
         public bool IsFinal { get; set; }
 
-        public State(string name) : this(name, false)
-        {
-        }
+        public State(string name) : this(name, false) { }
 
         public State(string Name, bool IsFinal)
         {
