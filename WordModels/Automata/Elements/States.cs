@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace WordModels.Automata.Elements
@@ -17,6 +18,8 @@ namespace WordModels.Automata.Elements
         public States(State s) : base(Comparer<State>.Create(StateComparer)) => Add(s);
 
         public States(IEnumerable<State> other) : base(other, Comparer<State>.Create(StateComparer)) { }
+
+        public void ForEach(Action<State> f) => ForEach(s => f(s));
 
         public override string ToString() => "{" + string.Join(", ", this) + "}";
     }

@@ -78,6 +78,28 @@ namespace WordModels.Automata
         public bool IsDeterministic() => transitions.GroupBy(t => t.Key.Source)
                 .All(group => group.Select(t => t.Key.Letter).Count() == sigma.Count() && !group.Any(t => t.Value.Count() > 1));
 
+        public bool ContainsWord(string word)
+        {
+            States curr = new States(initialState);
+            for (int i = 0; i < word.Length; i++)
+            {
+                States next = new States();
+                foreach (State s in curr.ToList())
+                {
+                    try
+                    {
+                        next.UnionWith(transitions[(s, word[i].ToString())]);
+                    }
+                    catch (KeyNotFoundException) { }
+                }
+                Console.WriteLine($"{word[i]} - {next}");
+                if (next.Count() == 0)
+                    return false;
+                curr = next;
+            }
+            return curr.Any(s => s.IsFinal);
+        }
+
         public override string ToString() => $"({states}, {sigma}, {initialState}, {transitions}, {FinalStates})";
     }
 }

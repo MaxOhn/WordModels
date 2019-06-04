@@ -11,6 +11,7 @@ namespace WordModels
     {
         static void Main(string[] args)
         {
+            string word = "baabab";
             //*
             Console.WriteLine("--- AUTOMATA ---");
             Alphabet sigma = new Alphabet { "a", "b" };
@@ -34,6 +35,7 @@ namespace WordModels
             DFA d1 = d.Determinize();
             Console.WriteLine(d1);
             Console.WriteLine($"Is deterministic: {d1.IsDeterministic()}");
+            Console.WriteLine($"Contains word {word}: {d.ContainsWord(word)}");
             //*/
             //*
             Console.WriteLine("--- GRAMMARS ---");
@@ -58,7 +60,6 @@ namespace WordModels
             g.CNF();
             Console.WriteLine(g);
             Console.WriteLine($"Is in CNF: {g.IsInCNF()}");
-            string word = "aabbb";
             Console.WriteLine($"Contains word {word}: {g.ContainsWord(word)}");
             //*/
         }

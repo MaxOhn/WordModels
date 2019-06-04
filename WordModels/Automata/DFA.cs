@@ -13,11 +13,7 @@ namespace WordModels.Automata
                 throw new ArgumentException("Transitions must be deterministic!");
         }
 
-        public void Complement()
-        {
-            foreach (State s in states)
-                s.IsFinal = !s.IsFinal;
-        }
+        public void Complement() => states.ForEach(s => s.IsFinal = !s.IsFinal);
 
         public DFA GetComplement() => new DFA(new States(states.Select(s => new State(s.ToString(), !s.IsFinal))), sigma, initialState, transitions);
     }
