@@ -13,6 +13,8 @@ namespace WordModels.Grammars.Elements
                 Add(left, new HashSet<RuleSide> { right });
         }
 
+        public void AddToKey(RuleSide left, IEnumerable<RuleSide> rights) => this[left].UnionWith(rights);
+
         public void Remove(RuleSide left, RuleSide right)
         {
             if (ContainsKey(left))
@@ -36,10 +38,15 @@ namespace WordModels.Grammars.Elements
         {
             if (ContainsKey(left))
             {
-                var e = this[left].GetEnumerator();
-                while (e.MoveNext())
-                    if (e.Current.Contains(without))
-                        this[left].Add(e.Current.Except(without));
+                foreach (RuleSide rs in this[left].ToList())
+                {
+                    if (rs.Contains(without))
+                    {
+                        RuleSide nSide = rs.Except(without);
+                        if (nSide.Count() > 0)
+                            this[left].Add(rs.Except(without));
+                    }
+                }
             }
         }
 

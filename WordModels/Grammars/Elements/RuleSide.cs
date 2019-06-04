@@ -29,13 +29,52 @@ namespace WordModels.Grammars.Elements
 
         public bool Contains(string symbol) => Symbols.Contains(symbol);
 
-        public bool Contains(RuleSide other) => other.Except(Symbols).Count() == 0;
+        public bool Contains(IEnumerable<string> symbols)
+        {
+            var symEnum = symbols.GetEnumerator();
+            for (int i = 0; i < Count(); i++)
+            {
+                if (!symEnum.MoveNext())
+                    return true;
+                if (!Symbols[i].Equals(symEnum.Current))
+                {
+                    symEnum = symbols.GetEnumerator();
+                    continue;
+                }
+            }
+            return false;
+        }
 
-        public RuleSide Except(IEnumerable<string> symbols) => new RuleSide(Symbols.Except(symbols));
+        public bool Contains(RuleSide other) => Contains(other.Symbols);
 
-        public RuleSide Except(RuleSide other) => new RuleSide(Symbols.Except(other.Symbols));
+        public RuleSide Except(IEnumerable<string> symbols)
+        {
+            var symEnum = symbols.GetEnumerator();
+            for (int i = 0; i < Count(); i++)
+            {
+                if (!symEnum.MoveNext())
+                {
+                    int start = i - symbols.Count();
+                    for (int j = start; j < i; j++)
+                        Symbols.RemoveAt(start);
+                    return this;
+                }
+                if (!Symbols[i].Equals(symEnum.Current))
+                {
+                    symEnum = symbols.GetEnumerator();
+                    continue;
+                }
+            }
+            return this;
+        }
+
+        public RuleSide Except(RuleSide other) => Except(other.Symbols);
+
+        public RuleSide Except(params string[] symbols) => Except(symbols);
 
         public int RemoveAll(string symbol) => Symbols.RemoveAll(s => s.Equals(symbol));
+
+        public void RemoveAt(int idx) => Symbols.RemoveAt(idx);
 
         public int Replace(string symbol, string replacement)
         {
@@ -49,9 +88,32 @@ namespace WordModels.Grammars.Elements
             return count;
         }
 
+        public void ReplaceFirstNWidth(int n, string replacement)
+        {
+            if (n < 0 || n >= Symbols.Count())
+                throw new ArgumentOutOfRangeException("RuleSide does not contain sufficiently many elements to replace!");
+            for (int i = 0; i < n; i++)
+                Symbols.RemoveAt(0);
+            Symbols.RemoveAll(s => s.Equals(""));
+            Symbols.Insert(0, replacement);
+        }
+
+        public RuleSide GetReplace(string symbol, string replacement)
+        {
+            RuleSide nSide = new RuleSide();
+            foreach (string s in Symbols)
+                nSide.Add(s.Equals(symbol) ? replacement : s);
+            return nSide;
+        }
+
         public string this[int idx] => Symbols[idx];
 
-        public override string ToString() => string.Join("", Symbols.Select(s => s.Equals("") ? "eps" : s));
+        public override string ToString()
+        {
+            if (Symbols.Count() == 0)
+                throw new InvalidOperationException("RuleSide may not be empty!");
+            return string.Join("", Symbols.Select(s => s.Equals("") ? "eps" : s));
+        }
 
         public bool Equals(RuleSide other)
         {

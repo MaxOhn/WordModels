@@ -11,9 +11,8 @@ namespace WordModels
     {
         static void Main(string[] args)
         {
+            //*
             Alphabet sigma = new Alphabet { "a", "b" };
-
-            /*
             Console.WriteLine("--- AUTOMATA ---");
             State q0 = new State("q0");
             State q1 = new State("q1", true);
@@ -31,28 +30,34 @@ namespace WordModels
             };
             NFA d = new NFA(states, sigma, q0, transitions);
             Console.WriteLine(d);
-            Console.WriteLine(d.IsDeterministic());
+            Console.WriteLine($"Is deterministic: {d.IsDeterministic()}");
             DFA d1 = d.Determinize();
             Console.WriteLine(d1);
-            Console.WriteLine(d1.IsDeterministic());
+            Console.WriteLine($"Is deterministic: {d1.IsDeterministic()}");
             //*/
             //*
             Console.WriteLine("--- GRAMMARS ---");
-            HashSet<string> NTS = new HashSet<string> { "S", "A" };
-            Alphabet TS = sigma;
+            HashSet<string> NTS = new HashSet<string> { "S", "A", "B", "C" };
+            Alphabet TS = new Alphabet { "a", "b", "c"};
             Rules rules = new Rules
             {
-                { new RuleSide("S"), new RuleSide("a", "S") },
-                { new RuleSide("S"), new RuleSide("A") },
-                { new RuleSide("A"), new RuleSide("b", "A") },
-                { new RuleSide("A"), new RuleSide("b", "A", "a") },
-                { new RuleSide("A"), new RuleSide("") }
+                { new RuleSide("S"), new RuleSide("A", "B") },
+                { new RuleSide("S"), new RuleSide("a", "b", "C") },
+                { new RuleSide("S"), new RuleSide("B") },
+                { new RuleSide("A"), new RuleSide("C") },
+                { new RuleSide("A"), new RuleSide("a", "a") },
+                { new RuleSide("A"), new RuleSide("a", "A", "B") },
+                { new RuleSide("B"), new RuleSide("b") },
+                { new RuleSide("B"), new RuleSide("B", "B", "S") },
+                { new RuleSide("C"), new RuleSide("B") },
+                { new RuleSide("C"), new RuleSide("c", "c") }
             };
             CFG g = new CFG(NTS, TS, "S", rules);
             Console.WriteLine(g);
-            /*
-            CFG g1 = g.GetCNF();
-            Console.WriteLine(g1);
+            Console.WriteLine($"Is in CNF: {g.IsInCNF()}");
+            g.CNF();
+            Console.WriteLine(g);
+            Console.WriteLine($"Is in CNF: {g.IsInCNF()}");
             //*/
         }
     }

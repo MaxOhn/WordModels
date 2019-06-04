@@ -23,6 +23,11 @@ namespace WordModels.Grammars
                 throw new ArgumentException("S must be contained in NTS!");
             if (rules.Keys.Any(rs => TS.IsSupersetOf(rs.Symbols)))
                 throw new ArgumentException($"Left-hand side of all rules must contain NTS!");
+            var allSymbols = new HashSet<string>(NTS.Union(TS));
+            bool x = rules.Any(r => !allSymbols.IsSupersetOf(r.Key.Symbols));
+            bool y = rules.Any(r => r.Value.Any(rs => !rs[0].Equals("") && !allSymbols.IsSupersetOf(rs.Symbols)));
+            if (rules.Any(r => !allSymbols.IsSupersetOf(r.Key.Symbols) || r.Value.Any(rs => !rs[0].Equals("") && !allSymbols.IsSupersetOf(rs.Symbols))))
+                throw new ArgumentException($"Rules can not contain symbols that are neither NTS nor TS!");
         }
 
         public bool IsContextFree() => rules.Keys.All(rs => rs.Count() == 1);

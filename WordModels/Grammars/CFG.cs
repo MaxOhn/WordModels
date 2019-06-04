@@ -30,49 +30,105 @@ namespace WordModels.Grammars
             });
         }
 
-        public CFG GetCNF()
+        public void CNF()
         {
-            HashSet<string> nNTS = NTS;
-            Alphabet nTS = TS;
-            string nS = S;
-            Rules nRules = rules;
-
             // Phase 0
 
-            var emptyableNTS = rules.Where(r => r.Value.Any(rs => rs.Contains(""))).Select(r => r.Key);
+            var emptyableNTS = rules.Where(r => r.Value.Any(rs => rs.Contains(""))).Select(r => r.Key).ToList();
             if (emptyableNTS.Count() > 0)
             {
                 foreach (RuleSide rs in emptyableNTS)
-                    nRules[rs] = new HashSet<RuleSide>(nRules[rs].Where(side => !side.Contains("")));
+                {
+                    rules.Remove(rs, new RuleSide(""));
+                    rules.CopyRightSideWithout(rs, rs);
+                }
                 Queue<RuleSide> queue = new Queue<RuleSide>(emptyableNTS);
                 while (queue.Count() > 0)
                 {
                     RuleSide curr = queue.Dequeue();
-                    var impacted = nRules.Contains(curr, false);
+                    var impacted = rules.Contains(curr, false).ToList();
                     foreach (RuleSide rs in impacted)
                     {
-                        queue.Enqueue(rs);
-                        nRules.CopyRightSideWithout(rs, curr);
+                        rules.CopyRightSideWithout(rs, curr);
+                        if (rules[rs].Contains(curr))
+                        {
+                            queue.Enqueue(rs);
+                            rules.CopyRightSideWithout(rs, rs);
+                        }
                     }
                 }
-                nS = S + "'";
-                nRules.Add(new RuleSide(nS), new RuleSide(S));
-                nRules.Add(new RuleSide(nS), new RuleSide(""));
+                RuleSide nS = new RuleSide(S + "'");
+                NTS.Add(nS.ToString());
+                rules.Add(nS, new RuleSide(S));
+                rules.Add(nS, new RuleSide(""));
+                S = nS.ToString();
             }
 
             // Phase 1
 
-            // TODO
+            TS.ToList().ForEach(ts =>
+            {
+                NTS.Add("X_" + ts);
+                rules.Add(new RuleSide("X_" + ts), new RuleSide(ts));
+            });
+            foreach (RuleSide left in rules.Keys)
+            {
+                foreach (RuleSide right in rules[left].ToList())
+                {
+                    RuleSide nSide = right;
+                    foreach (string ts in TS)
+                        if (right.Contains(ts) && right.Count() > 1)
+                            nSide.Replace(ts, "X_" + ts);
+                    rules.Replace(left, right, nSide);
+                }
+            }
 
             // Phase 2
 
-            // TODO
+            var transNTS = rules.Where(r => r.Value.Any(rs => rs.Count() == 1 && NTS.Contains(rs[0]))).Select(r => r.Key).ToList();
+            if (transNTS.Count > 0)
+            {
+                Queue<RuleSide> queue = new Queue<RuleSide>(transNTS);
+                while (queue.Count > 0)
+                {
+                    RuleSide curr = queue.Dequeue();
+                    var singles = rules[curr].Where(rs => rs.Count() == 1 && NTS.Contains(rs[0])).ToList();
+                    foreach (RuleSide rs in singles)
+                    {
+                        rules.Remove(curr, rs);
+                        if (queue.Contains(rs))
+                            queue.Enqueue(curr);
+                        if (rules.ContainsKey(rs))
+                            rules.AddToKey(curr, rules[rs]);
+                    }
+                }
+            }
 
             // Phase 3
 
-            // TODO
+            var tooMany = rules.SelectMany(r => r.Value).Where(rs => rs.Count() > 2);
+            if (tooMany.Count() > 0)
+            {
+                int idx = 1;
+                var queue = new Queue<RuleSide>(tooMany);
+                while (queue.Count > 0)
+                {
+                    var curr = queue.Dequeue();
+                    while (curr.Count() > 2)
+                    {
+                        string nNTS = "Y_" + idx++;
+                        RuleSide nSide = new RuleSide(curr[0], curr[1]);
+                        NTS.Add(nNTS);
+                        rules.Add(new RuleSide(nNTS), nSide);
+                        curr.ReplaceFirstNWidth(2, nNTS);
+                        var occurences = rules.Select(r => (r.Key, r.Value.Where(rs => rs.Contains(nSide)))).Where(pair => pair.Item2.Count() > 0);
+                        foreach (var pair in occurences)
+                            foreach (var right in pair.Item2)
+                                rules.Replace(pair.Key, right, right.Except(nSide));
+                    }
+                }
 
-            return this;
+            }
         }
         public bool IsInLanguage(string word)
         {
