@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using WordModels.Utility;
 using WordModels.Grammars.Elements;
 
 namespace WordModels.Grammars
@@ -32,6 +33,10 @@ namespace WordModels.Grammars
 
         public bool IsContextFree() => rules.Keys.All(rs => rs.Count() == 1);
 
-        public override string ToString() => $"({{{string.Join(", ", NTS)}}}, {TS}, {S}, {rules})";
+        public override string ToString()
+        {
+            //Utilities.PrettyPrint(rules);
+            return $"({{{string.Join(", ", NTS)}}}, {TS}, {S}, {rules})";
+        }
     }
 }

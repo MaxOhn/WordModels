@@ -12,8 +12,8 @@ namespace WordModels
         static void Main(string[] args)
         {
             //*
-            Alphabet sigma = new Alphabet { "a", "b" };
             Console.WriteLine("--- AUTOMATA ---");
+            Alphabet sigma = new Alphabet { "a", "b" };
             State q0 = new State("q0");
             State q1 = new State("q1", true);
             State q2 = new State("q2");
@@ -58,6 +58,8 @@ namespace WordModels
             g.CNF();
             Console.WriteLine(g);
             Console.WriteLine($"Is in CNF: {g.IsInCNF()}");
+            string word = "aabbb";
+            Console.WriteLine($"Contains word {word}: {g.ContainsWord(word)}");
             //*/
         }
     }

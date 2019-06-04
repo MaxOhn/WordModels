@@ -10,6 +10,8 @@ namespace WordModels.Grammars.Elements
 
         public RuleSide(string symbol) => Symbols = new List<string> { symbol };
 
+        public RuleSide(char symbol) => Symbols = new List<string> { symbol.ToString() };
+
         public RuleSide(IEnumerable<string> symbols) => Symbols = new List<string>(symbols);
 
         public RuleSide(params string[] values) => Symbols = values.ToList();
@@ -124,6 +126,10 @@ namespace WordModels.Grammars.Elements
                     return false;
             return true;
         }
+
+        public bool Equals(string symbol) => Symbols.Count() == 1 && Symbols[0].Equals(symbol);
+
+        public bool Equals(char symbol) => Symbols.Count() == 1 && Symbols[0].Equals(symbol.ToString());
 
         public override int GetHashCode() => string.Join("", Symbols).GetHashCode();
     }

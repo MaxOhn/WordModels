@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using WordModels.Utility;
 using System.Collections.Generic;
 using WordModels.Grammars.Elements;
 
@@ -130,14 +131,31 @@ namespace WordModels.Grammars
 
             }
         }
-        public bool IsInLanguage(string word)
+
+        public bool ContainsWord(string word)
         {
             if (!IsInCNF())
                 throw new InvalidOperationException("Can only check language inclusion for grammars in CNF!");
-
-            // TODO
-
-            return false;
+            int len = word.Length;
+            HashSet<string>[][] table = new HashSet<string>[len][];
+            for (int i = 0; i < len; i++)
+            {
+                table[i] = new HashSet<string>[i + 1];
+                table[i][i] = new HashSet<string>(rules.Where(r => r.Value.Any(rs => rs[0].Equals(word[i].ToString()))).Select(r => r.Key.ToString()));
+            }
+            for (int i = 1; i < len; i++)
+            {
+                for (int j = 0; j < len - i; j++)
+                {
+                    table[j + i][j] = new HashSet<string>();
+                    for (int k = j; k < i + j; k++)
+                        foreach (string s1 in table[k][j])
+                            foreach (string s2 in table[i + j][k + 1])
+                                table[j + i][j].UnionWith(rules.Where(r => r.Value.Any(rs => rs.ToString().Equals(s1 + s2))).Select(r => r.Key.ToString()));
+                }
+            }
+            //Utilities.PrettyPrint(table);
+            return table[len-1][0].Contains(S);
         }
     }
 }
